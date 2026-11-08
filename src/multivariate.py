@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import torch
 from numpy.lib.stride_tricks import sliding_window_view
 from torch import nn
@@ -105,3 +106,32 @@ MV_DETECTORS = {
     "pca": PCA,
     "autoencoder": MvAutoencoder,
 }
+
+
+class Detrended:
+    def __init__(self, inner: MvDetector, span: int):
+        self.inner = inner
+        self.span = span
+        self.alpha = 2 / (span + 1)
+        self.w = inner.w
+        self.stochastic = inner.stochastic
+
+    def baseline(self, X: np.ndarray) -> np.ndarray:
+        base = pd.DataFrame(X).ewm(alpha=self.alpha, adjust=False).mean().shift(1).to_numpy(copy=True)
+        base[0] = X[0]
+        return base
+
+    def transform(self, X: np.ndarray) -> np.ndarray:
+        return X - self.baseline(X)
+
+    def fit(self, X: np.ndarray) -> "Detrended":
+        self.inner.fit(self.transform(X))
+        return self
+
+    def score(self, X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        return self.inner.score(self.transform(X))
+
+
+def build(name: str, w: int, seed: int = 0, detrend: int = 0):
+    model = MV_DETECTORS[name](w, seed)
+    return Detrended(model, detrend) if detrend else model

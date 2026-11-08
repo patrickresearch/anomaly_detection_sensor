@@ -1,6 +1,7 @@
 {
   "w": 20,
   "q": 0.99,
+  "detrend": 60,
   "files": {
     "valve1/0": {
       "cause": "inlet valve closed",

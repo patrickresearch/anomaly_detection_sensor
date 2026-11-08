@@ -11,7 +11,7 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 from matplotlib.colors import LinearSegmentedColormap
 
 from src.data import ROOT
-from src.multivariate import MV_DETECTORS
+from src.multivariate import MV_DETECTORS, build
 from src.run_skab import FIT, VAL
 from src.skab import SENSORS, load
 from src.streaming import replay
@@ -20,16 +20,16 @@ RAMP = ["#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b"]
 INK, MUTED, LINE, BAND, CRITICAL, SURFACE = "#0b0b0b", "#6b6a66", "#52514e", "#e6e5e1", "#d03b3b", "#fcfcfb"
 
 
-def stream(name: str, detector: str, w: int, q: float):
+def stream(name: str, detector: str, w: int, q: float, detrend: int):
     e = load(name)
-    model = MV_DETECTORS[detector](w, 0).fit(e.X[:FIT])
+    model = build(detector, w, 0, detrend).fit(e.X[:FIT])
     thr = float(np.nanquantile(model.score(e.X[:VAL])[0][FIT:VAL], q))
     t0 = time.perf_counter()
     score, C, alarm = replay(model, thr, e.X)
     latency = (time.perf_counter() - t0) / len(e.X) * 1e3
     batch = model.score(e.X)[0]
     info = {
-        "file": name, "cause": e.cause[0], "detector": detector, "w": w, "q": q, "threshold": thr,
+        "file": name, "cause": e.cause[0], "detector": detector, "detrend": detrend, "w": w, "q": q, "threshold": thr,
         "points": len(e.X), "ms_per_point": latency,
         "max_rel_diff_to_batch": float(np.nanmax(np.abs(score - batch) / np.abs(batch))),
     }
@@ -134,12 +134,13 @@ def main():
     parser.add_argument("--detector", default="autoencoder", choices=list(MV_DETECTORS))
     parser.add_argument("--w", type=int, default=20)
     parser.add_argument("--q", type=float, default=0.99)
+    parser.add_argument("--detrend", type=int, default=60)
     parser.add_argument("--step", type=int, default=5, help="points per frame")
     parser.add_argument("--fps", type=int, default=15)
     parser.add_argument("--out", default=str(ROOT / "docs" / "streaming.gif"))
     args = parser.parse_args()
 
-    e, score, C, alarm, thr, info = stream(args.file, args.detector, args.w, args.q)
+    e, score, C, alarm, thr, info = stream(args.file, args.detector, args.w, args.q, args.detrend)
     print(json.dumps(info, indent=2))
     (ROOT / "results").mkdir(exist_ok=True)
     (ROOT / "results" / "streaming.json").write_text(json.dumps(info, indent=2))

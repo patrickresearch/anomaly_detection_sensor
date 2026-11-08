@@ -2,10 +2,11 @@
   "file": "other/7",
   "cause": "rotor imbalance",
   "detector": "autoencoder",
+  "detrend": 60,
   "w": 20,
   "q": 0.99,
-  "threshold": 31.529047401174907,
+  "threshold": 12.44339527182281,
   "points": 1090,
-  "ms_per_point": 0.24927706421828733,
-  "max_rel_diff_to_batch": 2.368330588635542e-07
+  "ms_per_point": 0.6654078743090519,
+  "max_rel_diff_to_batch": 3.531767113975695e-07
 }

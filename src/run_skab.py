@@ -7,7 +7,7 @@ import pandas as pd
 
 from src.data import ROOT
 from src.metrics import counts, evaluate, prf, regions
-from src.multivariate import MV_DETECTORS
+from src.multivariate import MV_DETECTORS, build
 from src.skab import FILES, SENSORS, load
 
 RESULTS = ROOT / "results"
@@ -20,7 +20,7 @@ def top_sensor(contrib: np.ndarray) -> tuple[str, np.ndarray]:
     return SENSORS[int(np.argmax(share))], share
 
 
-def benchmark(detectors, seeds, w, q):
+def benchmark(detectors, seeds, w, q, detrend):
     rows, attribution, scores, meta, pool = [], [], [], {}, {}
     for name in [f for f in FILES if f not in EXCLUDED]:
         e = load(name)
@@ -35,9 +35,8 @@ def benchmark(detectors, seeds, w, q):
             "windows": [[str(a), str(b)] for a, b in windows],
         }
         for det in detectors:
-            cls = MV_DETECTORS[det]
-            for seed in seeds if cls.stochastic else seeds[:1]:
-                model = cls(w, seed).fit(e.X[:FIT])
+            for seed in seeds if MV_DETECTORS[det].stochastic else seeds[:1]:
+                model = build(det, w, seed, detrend).fit(e.X[:FIT])
                 score, C = model.score(e.X)
                 thr = np.nanquantile(score[FIT:VAL], q)
                 alarms = np.nan_to_num(score, nan=-np.inf) > thr
@@ -95,13 +94,14 @@ def pooled(pool: dict, gap: int, n_null: int, seed: int = 0) -> pd.DataFrame:
     return pd.DataFrame(out)
 
 
-def injection(detectors, w, q, length=200, mags=(3.0, 6.0), starts=10):
+def injection(detectors, w, q, detrend, length=200, mags=(3.0, 6.0), starts=10):
     X = load("anomaly-free/anomaly-free").X
     positions = np.linspace(VAL, len(X) - length - 1, starts).astype(int)
     rows = []
     for det in detectors:
         for p in positions:
-            model = MV_DETECTORS[det](w, 0).fit(X[p - VAL: p - VAL + FIT])
+            model = build(det, w, 0, detrend).fit(X[p - VAL: p - VAL + FIT])
+            sd = X[p - VAL: p - VAL + FIT].std(0)
             thr = np.nanquantile(model.score(X[p - VAL: p])[0], q)
             clean = bool((model.score(X[p - w: p + length])[0][w:] > thr).any())
             for j, sensor in enumerate(SENSORS):
@@ -109,7 +109,7 @@ def injection(detectors, w, q, length=200, mags=(3.0, 6.0), starts=10):
                     ramp = np.ones(length) if kind == "step" else np.linspace(0, 1, length)
                     for mag in mags:
                         Xi = X[p - w: p + length].copy()
-                        Xi[w:, j] += mag * model.sd[j] * ramp
+                        Xi[w:, j] += mag * sd[j] * ramp
                         score, C = model.score(Xi)
                         hits = np.flatnonzero(score[w:] > thr)
                         top = SENSORS[int(np.argmax(C[w + hits].mean(0)))] if len(hits) else None
@@ -128,19 +128,20 @@ def main():
     parser.add_argument("--w", type=int, default=20, help="trailing window in points (1 s sampling)")
     parser.add_argument("--q", type=float, default=0.99, help="score quantile on validation points 300-400")
     parser.add_argument("--n-null", type=int, default=1000)
+    parser.add_argument("--detrend", type=int, default=60, help="EWMA span of the subtracted causal baseline, 0 = off")
     args = parser.parse_args()
 
     RESULTS.mkdir(exist_ok=True)
     t0 = time.perf_counter()
-    rows, attribution, scores, meta, pool = benchmark(args.detectors, args.seeds, args.w, args.q)
+    rows, attribution, scores, meta, pool = benchmark(args.detectors, args.seeds, args.w, args.q, args.detrend)
     summary = pooled(pool, args.w, args.n_null)
-    inj = injection(args.detectors, args.w, args.q)
+    inj = injection(args.detectors, args.w, args.q, args.detrend)
     rows.to_csv(RESULTS / "skab_metrics.csv", index=False)
     summary.to_csv(RESULTS / "skab_pooled.csv", index=False)
     attribution.to_csv(RESULTS / "skab_attribution.csv", index=False)
     inj.to_csv(RESULTS / "skab_injection.csv", index=False)
     scores.to_parquet(RESULTS / "skab_scores.parquet", index=False)
-    (RESULTS / "skab_meta.json").write_text(json.dumps({"w": args.w, "q": args.q, "files": meta}, indent=2))
+    (RESULTS / "skab_meta.json").write_text(json.dumps({"w": args.w, "q": args.q, "detrend": args.detrend, "files": meta}, indent=2))
 
     print(summary.groupby("detector")[["f1", "chance_f1", "p_value", "fp"]].mean().round(3).to_string())
     print(rows.groupby("detector")[["point_f1", "delay_s"]].median().round(2).to_string())

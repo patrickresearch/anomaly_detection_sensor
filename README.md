@@ -5,6 +5,8 @@ Comparing anomaly detectors on labeled sensor time series: five univariate detec
 [SKAB](https://github.com/waico/SKAB). Evaluated at event level against a chance baseline, with a streaming variant and an
 interactive threshold app.
 
+**[Live app](https://anomalydetectionsensor-53njzwcxxrjku7qqqrjpns.streamlit.app/)**
+
 ![hero](docs/hero.png)
 
 ## Univariate (NAB)
@@ -31,6 +33,7 @@ interactive threshold app.
 | `pca` | complete decomposition of the combined T² + SPE index (Alcala & Qin 2011) |
 | `autoencoder` | per-channel reconstruction error of a multichannel conv autoencoder |
 
+A causal moving average (span 60 s) is subtracted from every sensor first, which removes the slow drift of the testbed.
 Contributions sum to the anomaly score, so the explanation for an alarm is the share of each sensor. It is validated on faults
 injected into single sensors of the anomaly-free recording and checked for plausibility against SKAB's documented fault types.
 
@@ -40,6 +43,12 @@ injected into single sensors of the anomaly-free recording and checked for plaus
 
 Every detector scores point *t* from the trailing window ending at *t*, so a fixed buffer reproduces the batch scores exactly
 ([src/streaming.py](src/streaming.py)). The GIF shows the multichannel autoencoder on a rotor-imbalance experiment.
+
+## Optimization
+
+[src/optimize.py](src/optimize.py) tunes the threshold quantile, score smoothing and a minimum alarm duration (and, for SKAB, a
+causal detrending baseline) per detector. Each series is evaluated with the setting chosen on all other series, so the reported
+gain is a leave-one-out estimate rather than a fit to the test data.
 
 ## App
 
@@ -53,6 +62,7 @@ uv sync
 uv run python -m src.run           # NAB
 uv run python -m src.run_skab      # SKAB
 uv run python -m src.animate       # docs/streaming.gif
+uv run python -m src.optimize      # leave-one-out tuning
 uv run pytest
 uv run jupyter nbconvert --to html --execute notebooks/anomaly_comparison.ipynb --output-dir docs --output index.html
 uv run streamlit run app/streamlit_app.py

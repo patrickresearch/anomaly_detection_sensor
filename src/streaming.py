@@ -6,11 +6,18 @@ import numpy as np
 class Stream:
 
     def __init__(self, detector, threshold: float):
-        self.detector = detector
+        self.alpha = getattr(detector, "alpha", None)
+        self.detector = detector.inner if self.alpha else detector
         self.threshold = threshold
         self.buffer = deque(maxlen=detector.w + 1)
+        self.base = None
 
     def update(self, x) -> tuple[float, np.ndarray | None, bool]:
+        if self.alpha:
+            x = np.asarray(x, dtype=float)
+            r = np.zeros_like(x) if self.base is None else x - self.base
+            self.base = x if self.base is None else (1 - self.alpha) * self.base + self.alpha * x
+            x = r
         self.buffer.append(x)
         if len(self.buffer) < self.buffer.maxlen:
             return np.nan, None, False

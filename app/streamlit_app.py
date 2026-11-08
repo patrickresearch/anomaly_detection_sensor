@@ -11,9 +11,12 @@ sys.path.insert(0, str(ROOT))
 
 from src.metrics import evaluate  # noqa: E402
 from src.plots import threshold_view  # noqa: E402
+from src.postprocess import debounce, smooth  # noqa: E402
 
 RESULTS = ROOT / "results"
 QS = [0.9, 0.95, 0.97, 0.98, 0.99, 0.995, 0.998, 0.999, 0.9995, 1.0]
+SPANS = [0.0, 0.1, 0.25, 0.5, 1.0]
+DEBOUNCE = [0.0, 0.1, 0.25, 0.5]
 SKAB_FIT, SKAB_VAL = 300, 400
 
 st.set_page_config(page_title="Sensor anomaly detection", layout="wide")
@@ -27,6 +30,19 @@ def nab():
 @st.cache_data
 def skab():
     return pd.read_parquet(RESULTS / "skab_scores.parquet"), json.loads((RESULTS / "skab_meta.json").read_text())
+
+
+@st.cache_data
+def tuned(ds: str, detector: str, variant: str) -> dict | None:
+    path = RESULTS / f"opt_{ds}_grid.csv"
+    if not path.exists():
+        return None
+    g = pd.read_csv(path)
+    g = g[(g["detector"] == detector) & (g["variant"] == variant)]
+    if g.empty:
+        return None
+    best = g.groupby(["q", "span", "k"])["f1"].mean().idxmax()
+    return dict(zip(["q", "span", "k"], best))
 
 
 def stamps(pairs):
@@ -58,6 +74,7 @@ if dataset.startswith("NAB"):
     gap, grace, unit = m["w"], pd.Timedelta(m["context"]), ("h", 1)
     contrib, value, value_name = None, df["x"].to_numpy(), "value"
     default_q = 0.995
+    ds, variant = "nab", "raw"
 else:
     scores, meta = skab()
     files = meta["files"]
@@ -76,14 +93,30 @@ else:
     value_name = st.sidebar.selectbox("Sensor to plot", sensors, index=sensors.index(m["plausible"][0]))
     value = df[value_name].to_numpy()
     default_q = meta["q"]
+    ds, variant = "skab", f"detrend{meta['detrend']}" if meta.get("detrend") else "raw"
 
-score = df["score"].to_numpy()
-q = st.sidebar.select_slider(
-    "Threshold (quantile of normal validation scores)", options=QS, value=default_q,
-    help="1.0 = the largest score seen on normal validation data.",
+cfg = tuned(ds, det, variant)
+use_tuned = st.sidebar.toggle(
+    "Tuned post-processing", value=cfg is not None, disabled=cfg is None,
+    help="Threshold, smoothing and minimum alarm duration with the best mean event F1 over all series. "
+         "The notebook reports a leave-one-out estimate of this gain.",
 )
+base = cfg if use_tuned else {"q": default_q, "span": 0.0, "k": 0.0}
+key = f"{use_tuned}-{ds}-{det}-{name}"
+q = st.sidebar.select_slider(
+    "Threshold (quantile of normal validation scores)", options=QS, value=base["q"], disabled=use_tuned,
+    help="1.0 = the largest score seen on normal validation data.", key=f"q-{key}",
+)
+span = st.sidebar.select_slider(
+    "Smoothing (EWMA span, share of window)", options=SPANS, value=base["span"], disabled=use_tuned, key=f"s-{key}",
+)
+k = st.sidebar.select_slider(
+    "Minimum alarm duration (share of window)", options=DEBOUNCE, value=base["k"], disabled=use_tuned,
+    help="An alarm is raised only after this many consecutive points above the threshold.", key=f"k-{key}",
+)
+score = smooth(df["score"].to_numpy(), int(round(span * gap)))
 thr = float(np.nanquantile(score[val], q))
-alarms = np.nan_to_num(score, nan=-np.inf) > thr
+alarms = debounce(np.nan_to_num(score, nan=-np.inf) > thr, int(round(k * gap)))
 st.sidebar.markdown(f"Threshold in score units: **{thr:.4g}**")
 
 res = evaluate(t[test], alarms[test], windows, points, gap=gap, grace=grace, n_null=300)
