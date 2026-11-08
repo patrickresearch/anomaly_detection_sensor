@@ -11,10 +11,15 @@ RAW = ROOT / "data" / "raw"
 NAB = "https://raw.githubusercontent.com/numenta/NAB/master"
 
 SERIES = {
-    "machine_temperature": ("realKnownCause/machine_temperature_system_failure.csv", "12h"),
-    "nyc_taxi": ("realKnownCause/nyc_taxi.csv", "1D"),
-    "ambient_temperature": ("realKnownCause/ambient_temperature_system_failure.csv", "1D"),
-    "ec2_request_latency": ("realKnownCause/ec2_request_latency_system_failure.csv", "2h"),
+    "machine_temperature": ("realKnownCause/machine_temperature_system_failure.csv", "12h", False),
+    "nyc_taxi": ("realKnownCause/nyc_taxi.csv", "1D", True),
+    "ambient_temperature": ("realKnownCause/ambient_temperature_system_failure.csv", "1D", True),
+    "ec2_request_latency": ("realKnownCause/ec2_request_latency_system_failure.csv", "2h", False),
+    "cpu_asg_misconfig": ("realKnownCause/cpu_utilization_asg_misconfiguration.csv", "2h", False),
+    "rds_cpu": ("realAWSCloudwatch/rds_cpu_utilization_cc0c53.csv", "2h", False),
+    "ec2_cpu": ("realAWSCloudwatch/ec2_cpu_utilization_24ae8d.csv", "2h", False),
+    "traffic_occupancy": ("realTraffic/occupancy_t4013.csv", "2h", False),
+    "traffic_speed": ("realTraffic/speed_7578.csv", "2h", False),
 }
 
 
@@ -26,6 +31,8 @@ class Series:
     windows: list[tuple[pd.Timestamp, pd.Timestamp]]
     points: list[pd.Timestamp]
     w: int
+    context: pd.Timedelta
+    weekly: bool
 
     def in_window(self) -> np.ndarray:
         mask = np.zeros(len(self.t), dtype=bool)
@@ -43,7 +50,7 @@ def fetch(path: str) -> Path:
 
 
 def load(name: str) -> Series:
-    path, context = SERIES[name]
+    path, context, weekly = SERIES[name]
     df = pd.read_csv(fetch(f"data/{path}"), parse_dates=["timestamp"])
     windows = json.loads(fetch("labels/combined_windows.json").read_text())[path]
     points = json.loads(fetch("labels/combined_labels.json").read_text())[path]
@@ -56,7 +63,15 @@ def load(name: str) -> Series:
         windows=[(pd.Timestamp(a), pd.Timestamp(b)) for a, b in windows],
         points=[pd.Timestamp(p) for p in points],
         w=w,
+        context=pd.Timedelta(context),
+        weekly=weekly,
     )
+
+
+def remove_weekly(t: pd.DatetimeIndex, x: np.ndarray, fit: np.ndarray) -> np.ndarray:
+    key = pd.Index(t.dayofweek * 86400 + (t - t.normalize()).total_seconds().astype(int))
+    profile = pd.Series(x[fit]).groupby(key[fit]).median()
+    return x - profile.reindex(key).fillna(np.median(x[fit])).to_numpy()
 
 
 def split(n: int, train: float, val: float) -> tuple[slice, slice, slice]:

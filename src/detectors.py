@@ -20,6 +20,8 @@ def align(s: np.ndarray, n: int) -> np.ndarray:
 
 
 class Detector(ABC):
+    stochastic = False
+
     def __init__(self, w: int, seed: int = 0):
         self.w = w
         self.seed = seed
@@ -39,6 +41,8 @@ class RollingZScore(Detector):
 
 
 class IForest(Detector):
+    stochastic = True
+
     @staticmethod
     def features(W: np.ndarray) -> np.ndarray:
         t = np.arange(W.shape[1]) - (W.shape[1] - 1) / 2
@@ -65,13 +69,19 @@ class IForest(Detector):
 
 
 class MatrixProfile(Detector):
+    normalize = True
+
     def fit(self, x):
         self.reference = x
         return self
 
     def score(self, x):
-        mp = stumpy.stump(x, self.w, T_B=self.reference, ignore_trivial=False)
+        mp = stumpy.stump(x, self.w, T_B=self.reference, ignore_trivial=False, normalize=self.normalize)
         return align(mp[:, 0].astype(float), len(x))
+
+
+class MatrixProfileRaw(MatrixProfile):
+    normalize = False
 
 
 class ConvAE(nn.Module):
@@ -91,6 +101,8 @@ class ConvAE(nn.Module):
 
 
 class Autoencoder(Detector):
+    stochastic = True
+
     def __init__(self, w: int, seed: int = 0, epochs: int = 30, batch: int = 128, lr: float = 1e-3):
         super().__init__(w, seed)
         self.epochs, self.batch, self.lr = epochs, batch, lr
@@ -132,5 +144,6 @@ DETECTORS = {
     "zscore": RollingZScore,
     "iforest": IForest,
     "matrix_profile": MatrixProfile,
+    "matrix_profile_raw": MatrixProfileRaw,
     "autoencoder": Autoencoder,
 }
