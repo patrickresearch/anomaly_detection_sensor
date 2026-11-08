@@ -1,0 +1,539 @@
+{
+  "w": 20,
+  "q": 0.99,
+  "files": {
+    "valve1/0": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6986062717770035,
+      "val_start": "2020-03-09 10:19:47",
+      "test_start": "2020-03-09 10:21:31",
+      "windows": [
+        [
+          "2020-03-09 10:24:33",
+          "2020-03-09 10:31:32"
+        ]
+      ]
+    },
+    "valve1/1": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7009590235396687,
+      "val_start": "2020-03-09 10:39:48",
+      "test_start": "2020-03-09 10:41:33",
+      "windows": [
+        [
+          "2020-03-09 10:44:33",
+          "2020-03-09 10:51:33"
+        ]
+      ]
+    },
+    "valve1/2": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6660079051383399,
+      "val_start": "2020-03-09 10:59:47",
+      "test_start": "2020-03-09 11:01:32",
+      "windows": [
+        [
+          "2020-03-09 11:05:40",
+          "2020-03-09 11:11:33"
+        ]
+      ]
+    },
+    "valve1/3": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.701388888888889,
+      "val_start": "2020-03-09 11:19:48",
+      "test_start": "2020-03-09 11:21:34",
+      "windows": [
+        [
+          "2020-03-09 11:24:34",
+          "2020-03-09 11:31:35"
+        ]
+      ]
+    },
+    "valve1/4": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6685823754789271,
+      "val_start": "2020-03-09 11:39:50",
+      "test_start": "2020-03-09 11:41:34",
+      "windows": [
+        [
+          "2020-03-09 11:44:36",
+          "2020-03-09 11:51:34"
+        ]
+      ]
+    },
+    "valve1/5": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6966292134831461,
+      "val_start": "2020-03-09 11:59:48",
+      "test_start": "2020-03-09 12:01:32",
+      "windows": [
+        [
+          "2020-03-09 12:04:36",
+          "2020-03-09 12:11:35"
+        ]
+      ]
+    },
+    "valve1/6": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6988783433994823,
+      "val_start": "2020-03-09 12:19:49",
+      "test_start": "2020-03-09 12:21:33",
+      "windows": [
+        [
+          "2020-03-09 12:24:36",
+          "2020-03-09 12:31:36"
+        ]
+      ]
+    },
+    "valve1/7": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7370336669699727,
+      "val_start": "2020-03-09 12:39:49",
+      "test_start": "2020-03-09 12:41:32",
+      "windows": [
+        [
+          "2020-03-09 12:44:37",
+          "2020-03-09 12:51:37"
+        ]
+      ]
+    },
+    "valve1/8": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6993006993006993,
+      "val_start": "2020-03-09 12:59:54",
+      "test_start": "2020-03-09 13:01:38",
+      "windows": [
+        [
+          "2020-03-09 13:04:38",
+          "2020-03-09 13:11:37"
+        ]
+      ]
+    },
+    "valve1/9": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6991304347826087,
+      "val_start": "2020-03-09 13:19:52",
+      "test_start": "2020-03-09 13:21:36",
+      "windows": [
+        [
+          "2020-03-09 13:24:38",
+          "2020-03-09 13:31:38"
+        ]
+      ]
+    },
+    "valve1/10": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6992153443766347,
+      "val_start": "2020-03-09 13:39:53",
+      "test_start": "2020-03-09 13:41:38",
+      "windows": [
+        [
+          "2020-03-09 13:44:39",
+          "2020-03-09 13:51:38"
+        ]
+      ]
+    },
+    "valve1/11": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7000000000000001,
+      "val_start": "2020-03-09 13:59:54",
+      "test_start": "2020-03-09 14:01:39",
+      "windows": [
+        [
+          "2020-03-09 14:04:39",
+          "2020-03-09 14:11:39"
+        ]
+      ]
+    },
+    "valve1/12": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7006145741878842,
+      "val_start": "2020-03-09 14:19:56",
+      "test_start": "2020-03-09 14:21:41",
+      "windows": [
+        [
+          "2020-03-09 14:24:40",
+          "2020-03-09 14:31:40"
+        ]
+      ]
+    },
+    "valve1/13": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7006145741878842,
+      "val_start": "2020-03-09 14:39:57",
+      "test_start": "2020-03-09 14:41:42",
+      "windows": [
+        [
+          "2020-03-09 14:44:41",
+          "2020-03-09 14:51:40"
+        ]
+      ]
+    },
+    "valve1/14": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7012302284710018,
+      "val_start": "2020-03-09 14:59:58",
+      "test_start": "2020-03-09 15:01:43",
+      "windows": [
+        [
+          "2020-03-09 15:04:41",
+          "2020-03-09 15:11:40"
+        ]
+      ]
+    },
+    "valve1/15": {
+      "cause": "inlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7001733102253033,
+      "val_start": "2020-03-09 15:19:55",
+      "test_start": "2020-03-09 15:21:40",
+      "windows": [
+        [
+          "2020-03-09 15:24:41",
+          "2020-03-09 15:31:41"
+        ]
+      ]
+    },
+    "valve2/0": {
+      "cause": "outlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7042001787310099,
+      "val_start": "2020-03-09 16:01:50",
+      "test_start": "2020-03-09 16:03:37",
+      "windows": [
+        [
+          "2020-03-09 16:06:30",
+          "2020-03-09 16:13:29"
+        ]
+      ]
+    },
+    "valve2/1": {
+      "cause": "outlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6686746987951807,
+      "val_start": "2020-03-09 16:21:51",
+      "test_start": "2020-03-09 16:23:39",
+      "windows": [
+        [
+          "2020-03-09 16:26:30",
+          "2020-03-09 16:33:29"
+        ]
+      ]
+    },
+    "valve2/2": {
+      "cause": "outlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.702846975088968,
+      "val_start": "2020-03-09 16:41:50",
+      "test_start": "2020-03-09 16:43:37",
+      "windows": [
+        [
+          "2020-03-09 16:46:31",
+          "2020-03-09 16:53:30"
+        ]
+      ]
+    },
+    "valve2/3": {
+      "cause": "outlet valve closed",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.797979797979798,
+      "val_start": "2020-03-09 17:01:50",
+      "test_start": "2020-03-09 17:03:37",
+      "windows": [
+        [
+          "2020-03-09 17:06:31",
+          "2020-03-09 17:13:31"
+        ]
+      ]
+    },
+    "other/1": {
+      "cause": "fluid leak or addition",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7054409005628517,
+      "val_start": "2020-03-01 15:49:21",
+      "test_start": "2020-03-01 15:51:06",
+      "windows": [
+        [
+          "2020-03-01 15:53:50",
+          "2020-03-01 15:57:06"
+        ]
+      ]
+    },
+    "other/3": {
+      "cause": "fluid leak or addition",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.7013215859030837,
+      "val_start": "2020-03-01 16:49:10",
+      "test_start": "2020-03-01 16:50:56",
+      "windows": [
+        [
+          "2020-03-01 16:53:53",
+          "2020-03-01 17:00:52"
+        ]
+      ]
+    },
+    "other/4": {
+      "cause": "fluid leak or addition",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6661045531197302,
+      "val_start": "2020-03-01 17:05:10",
+      "test_start": "2020-03-01 17:06:55",
+      "windows": [
+        [
+          "2020-03-01 17:13:53",
+          "2020-03-01 17:20:49"
+        ]
+      ]
+    },
+    "other/5": {
+      "cause": "rotor imbalance",
+      "plausible": [
+        "accel1",
+        "accel2"
+      ],
+      "point_f1_always": 0.7038626609442059,
+      "val_start": "2020-02-08 16:12:03",
+      "test_start": "2020-02-08 16:13:48",
+      "windows": [
+        [
+          "2020-02-08 16:16:48",
+          "2020-02-08 16:23:56"
+        ]
+      ]
+    },
+    "other/6": {
+      "cause": "rotor imbalance",
+      "plausible": [
+        "accel1",
+        "accel2"
+      ],
+      "point_f1_always": 0.6997389033942559,
+      "val_start": "2020-02-08 16:32:23",
+      "test_start": "2020-02-08 16:34:08",
+      "windows": [
+        [
+          "2020-02-08 16:37:09",
+          "2020-02-08 16:44:09"
+        ]
+      ]
+    },
+    "other/7": {
+      "cause": "rotor imbalance",
+      "plausible": [
+        "accel1",
+        "accel2"
+      ],
+      "point_f1_always": 0.6692381870781099,
+      "val_start": "2020-02-08 16:52:25",
+      "test_start": "2020-02-08 16:54:10",
+      "windows": [
+        [
+          "2020-02-08 16:57:11",
+          "2020-02-08 17:03:13"
+        ]
+      ]
+    },
+    "other/8": {
+      "cause": "rotor imbalance",
+      "plausible": [
+        "accel1",
+        "accel2"
+      ],
+      "point_f1_always": 0.7008695652173913,
+      "val_start": "2020-02-08 17:12:26",
+      "test_start": "2020-02-08 17:14:11",
+      "windows": [
+        [
+          "2020-02-08 17:17:12",
+          "2020-02-08 17:24:13"
+        ]
+      ]
+    },
+    "other/9": {
+      "cause": "rotor imbalance",
+      "plausible": [
+        "accel1",
+        "accel2"
+      ],
+      "point_f1_always": 0.7004366812227073,
+      "val_start": "2020-02-08 17:32:33",
+      "test_start": "2020-02-08 17:34:18",
+      "windows": [
+        [
+          "2020-02-08 17:37:18",
+          "2020-02-08 17:44:18"
+        ]
+      ]
+    },
+    "other/10": {
+      "cause": "slow water increase",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.774619960343688,
+      "val_start": "2020-02-08 17:53:00",
+      "test_start": "2020-02-08 17:54:45",
+      "windows": [
+        [
+          "2020-02-08 17:57:44",
+          "2020-02-08 18:08:02"
+        ]
+      ]
+    },
+    "other/11": {
+      "cause": "sudden water increase",
+      "plausible": [
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.726833199033038,
+      "val_start": "2020-02-08 18:15:57",
+      "test_start": "2020-02-08 18:17:43",
+      "windows": [
+        [
+          "2020-02-08 18:20:42",
+          "2020-02-08 18:28:36"
+        ]
+      ]
+    },
+    "other/12": {
+      "cause": "draining until cavitation",
+      "plausible": [
+        "accel1",
+        "accel2",
+        "current",
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.64576802507837,
+      "val_start": "2020-02-08 18:40:08",
+      "test_start": "2020-02-08 18:41:54",
+      "windows": [
+        [
+          "2020-02-08 18:44:51",
+          "2020-02-08 18:51:54"
+        ]
+      ]
+    },
+    "other/13": {
+      "cause": "two-phase inlet flow (cavitation)",
+      "plausible": [
+        "accel1",
+        "accel2",
+        "current",
+        "flow",
+        "pressure"
+      ],
+      "point_f1_always": 0.6725888324873097,
+      "val_start": "2020-02-08 18:54:03",
+      "test_start": "2020-02-08 18:55:49",
+      "windows": [
+        [
+          "2020-02-08 18:57:29",
+          "2020-02-08 19:03:20"
+        ]
+      ]
+    },
+    "other/14": {
+      "cause": "hot water supply",
+      "plausible": [
+        "fluid_temp"
+      ],
+      "point_f1_always": 0.7484510532837669,
+      "val_start": "2020-02-08 19:21:43",
+      "test_start": "2020-02-08 19:23:27",
+      "windows": [
+        [
+          "2020-02-08 19:26:28",
+          "2020-02-08 19:31:45"
+        ]
+      ]
+    }
+  }
+}

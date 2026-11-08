@@ -85,15 +85,15 @@ class MatrixProfileRaw(MatrixProfile):
 
 
 class ConvAE(nn.Module):
-    def __init__(self):
+    def __init__(self, channels: int = 1):
         super().__init__()
         self.encoder = nn.Sequential(
-            nn.Conv1d(1, 16, 7, stride=2, padding=3), nn.ReLU(),
+            nn.Conv1d(channels, 16, 7, stride=2, padding=3), nn.ReLU(),
             nn.Conv1d(16, 8, 7, stride=2, padding=3), nn.ReLU(),
         )
         self.decoder = nn.Sequential(
             nn.ConvTranspose1d(8, 16, 7, stride=2, padding=3, output_padding=1), nn.ReLU(),
-            nn.ConvTranspose1d(16, 1, 7, stride=2, padding=3, output_padding=1),
+            nn.ConvTranspose1d(16, channels, 7, stride=2, padding=3, output_padding=1),
         )
 
     def forward(self, x):

@@ -27,7 +27,9 @@ def run(names: list[str], detectors: list[str], q: float, train: float, val: flo
             "weekly": s.weekly,
             "val_start": str(s.t[va.start]),
             "test_start": str(s.t[te.start]),
+            "context": str(s.context),
             "windows": [[str(a), str(b)] for a, b in s.windows],
+            "points": [str(p) for p in s.points],
         }
         print(f"{name}: n={len(s.x)} w={s.w} weekly={s.weekly} events(train/val/test)="
               f"{[int(sum(((s.t[sl] >= a) & (s.t[sl] <= b)).any() for a, b in s.windows)) for sl in (tr, va, te)]}")

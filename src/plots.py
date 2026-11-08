@@ -102,3 +102,61 @@ def sweep_chart(sweep: pd.DataFrame) -> go.Figure:
     fig.update_yaxes(title="mean event F1", rangemode="tozero")
     fig = layout(fig, "Threshold sensitivity: mean event F1 over series and seeds", 420)
     return fig.update_layout(hovermode="closest", margin=dict(l=60))
+
+
+CRITICAL = "#d03b3b"
+RAMP = [[0, "#cde2fb"], [0.25, "#86b6ef"], [0.5, "#3987e5"], [0.75, "#1c5cab"], [1, "#0d366b"]]
+
+
+def threshold_view(
+    t: pd.Series,
+    score: np.ndarray,
+    thr: float,
+    alarms: np.ndarray,
+    windows: list,
+    test_start: str,
+    value: np.ndarray | None = None,
+    value_name: str = "value",
+    contrib: pd.DataFrame | None = None,
+) -> go.Figure:
+    rows = 2 + (contrib is not None)
+    heights = [0.45, 0.35, 0.2] if contrib is not None else [0.55, 0.45]
+    fig = make_subplots(rows=rows, cols=1, shared_xaxes=True, vertical_spacing=0.04, row_heights=heights)
+    meta = {"windows": windows, "test_start": test_start}
+    line = thin(pd.DataFrame({"t": t, "x": value}))
+    fig.add_scattergl(x=line["t"], y=line["x"], name=value_name, line=dict(color=LINE, width=1), row=1, col=1)
+    fig.add_scattergl(
+        x=t[alarms], y=value[alarms], mode="markers", name="alarm",
+        marker=dict(color=CRITICAL, size=5, symbol="triangle-up"), row=1, col=1,
+    )
+    s = thin(pd.DataFrame({"t": t, "x": score}).dropna())
+    fig.add_scattergl(x=s["t"], y=s["x"], name="score", line=dict(color=INK, width=1), row=2, col=1)
+    fig.add_hline(y=thr, line=dict(color=LINE, dash="dash", width=1), row=2, col=1,
+                  annotation_text="threshold", annotation_position="top left")
+    for r in range(1, rows + 1):
+        decorate(fig, meta, row=r, col=1)
+    fig.update_yaxes(title_text=value_name, row=1, col=1)
+    fig.update_yaxes(title_text="score (log)", type="log", row=2, col=1)
+    if contrib is not None:
+        share = contrib.div(contrib.sum(1), axis=0)
+        fig.add_heatmap(
+            x=t, y=list(contrib.columns), z=share.T.to_numpy(), zmin=0, zmax=0.5, colorscale=RAMP,
+            colorbar=dict(title="share", len=0.2, y=0.1, thickness=10), row=3, col=1,
+            hovertemplate="%{y}: %{z:.0%}<extra></extra>",
+        )
+    fig = layout(fig, "", 300 + 220 * (rows - 1))
+    return fig.update_layout(margin=dict(l=60, r=20, t=30, b=30), hovermode="closest")
+
+
+def attribution_heatmap(attribution: pd.DataFrame, detector: str, sensors: list[str]) -> go.Figure:
+    a = attribution[attribution["detector"] == detector]
+    share = pd.crosstab(a["cause"], a["top"], normalize="index").reindex(columns=sensors, fill_value=0)
+    n = a.groupby("cause").size()
+    fig = go.Figure(go.Heatmap(
+        z=share.to_numpy(), x=sensors, y=[f"{c} (n={n[c]})" for c in share.index], zmin=0, zmax=1,
+        colorscale=RAMP, colorbar=dict(title="share", thickness=10),
+        text=share.map(lambda v: f"{v:.0%}" if v else "").to_numpy(), texttemplate="%{text}",
+        hovertemplate="%{y}<br>top sensor %{x}: %{z:.0%}<extra></extra>",
+    ))
+    fig = layout(fig, f"{detector}: top sensor per detected event, by fault type", 420)
+    return fig.update_layout(margin=dict(l=240), hovermode="closest")
