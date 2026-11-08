@@ -67,7 +67,10 @@ dataset = st.sidebar.radio("Dataset", ["NAB (univariate)", "SKAB (multivariate)"
 if dataset.startswith("NAB"):
     scores, meta = nab()
     name = st.sidebar.selectbox("Series", list(meta))
-    det = st.sidebar.selectbox("Detector", list(scores["detector"].unique()))
+    dets = list(scores["detector"].unique())
+    final = RESULTS / "final_config.json"
+    best = json.loads(final.read_text()).get("overall") if final.exists() else None
+    det = st.sidebar.selectbox("Detector", dets, index=dets.index(best) if best in dets else 0)
     df = scores[(scores["series"] == name) & (scores["detector"] == det)].reset_index(drop=True)
     m = meta[name]
     t = pd.DatetimeIndex(df["t"])
