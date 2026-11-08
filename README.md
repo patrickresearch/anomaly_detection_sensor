@@ -18,6 +18,7 @@ interactive threshold app.
 | `matrix_profile` | z-normalized distance to nearest normal training subsequence (stumpy AB-join) |
 | `matrix_profile_raw` | same without z-normalization, sensitive to level and amplitude shifts |
 | `autoencoder` | reconstruction error of a 1D-conv autoencoder trained on normal windows |
+| `ensemble` | mean of validation-calibrated `matrix_profile_raw` and `zscore` scores at twice the context length |
 
 - chronological split 40/20/40, labeled windows removed from training
 - weekly time-of-week profile removed for series with a weekly cycle
@@ -46,9 +47,12 @@ Every detector scores point *t* from the trailing window ending at *t*, so a fix
 
 ## Optimization
 
-[src/optimize.py](src/optimize.py) tunes the threshold quantile, score smoothing and a minimum alarm duration (and, for SKAB, a
-causal detrending baseline) per detector. Each series is evaluated with the setting chosen on all other series, so the reported
-gain is a leave-one-out estimate rather than a fit to the test data.
+[src/optimize.py](src/optimize.py) tunes the threshold quantile, score smoothing and a minimum alarm duration, then adds
+detector subsets for ensembles, the context length and (SKAB) training on the anomaly-free recording as separate stages.
+Each series is evaluated with the setting chosen on all other series, the detector included, so every reported number is a
+leave-one-out estimate. A stage is adopted only if it beats the previous one with a paired bootstrap interval above zero:
+on NAB the context length stage does (ensemble of `matrix_profile_raw` and `zscore` at 2× context), on SKAB none of the
+extra stages helps. The adopted stages are set in [src/config.py](src/config.py).
 
 ## App
 

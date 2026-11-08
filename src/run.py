@@ -6,8 +6,10 @@ import numpy as np
 import pandas as pd
 
 from src.data import ROOT, SERIES, load, remove_weekly, split
+from src.config import NAB_ENSEMBLE
 from src.detectors import DETECTORS
 from src.metrics import evaluate
+from src.postprocess import calibrate
 
 RESULTS = ROOT / "results"
 QS = (0.95, 0.98, 0.99, 0.995, 0.999, 0.9995)
@@ -34,12 +36,24 @@ def run(names: list[str], detectors: list[str], q: float, train: float, val: flo
         print(f"{name}: n={len(s.x)} w={s.w} weekly={s.weekly} events(train/val/test)="
               f"{[int(sum(((s.t[sl] >= a) & (s.t[sl] <= b)).any() for a, b in s.windows)) for sl in (tr, va, te)]}")
         ev = dict(windows=s.windows, points=s.points, gap=s.w, grace=s.context)
-        for det in detectors:
-            cls = DETECTORS[det]
-            for seed in seeds if cls.stochastic else seeds[:1]:
+        val_mask = np.zeros(len(s.x), dtype=bool)
+        val_mask[va] = True
+        val_mask &= normal
+
+        def scored(det, seed):
+            if det != "ensemble":
+                cls = DETECTORS[det]
+                return cls(s.w, seed).fit(x_fit).score(x)
+            w2 = int(round(NAB_ENSEMBLE["w_factor"] * s.w))
+            members = [DETECTORS[d](w2, 0).fit(x_fit).score(x) for d in NAB_ENSEMBLE["members"]]
+            return np.mean([calibrate(m, m[val_mask]) for m in members], axis=0)
+
+        for det in [*detectors, "ensemble"]:
+            stochastic = det != "ensemble" and DETECTORS[det].stochastic
+            for seed in seeds if stochastic else seeds[:1]:
                 t0 = time.perf_counter()
-                score = cls(s.w, seed).fit(x_fit).score(x)
-                ref = score[va][normal[va]]
+                score = scored(det, seed)
+                ref = score[val_mask]
                 filled = np.nan_to_num(score, nan=-np.inf)
                 thr = np.nanquantile(ref, q)
                 alarms = filled > thr

@@ -9,6 +9,7 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+from src.config import SKAB_VARIANT, nab_variant  # noqa: E402
 from src.metrics import evaluate  # noqa: E402
 from src.plots import threshold_view  # noqa: E402
 from src.postprocess import debounce, smooth  # noqa: E402
@@ -74,7 +75,7 @@ if dataset.startswith("NAB"):
     gap, grace, unit = m["w"], pd.Timedelta(m["context"]), ("h", 1)
     contrib, value, value_name = None, df["x"].to_numpy(), "value"
     default_q = 0.995
-    ds, variant = "nab", "raw"
+    ds, variant = "nab", nab_variant(det)
 else:
     scores, meta = skab()
     files = meta["files"]
@@ -93,7 +94,7 @@ else:
     value_name = st.sidebar.selectbox("Sensor to plot", sensors, index=sensors.index(m["plausible"][0]))
     value = df[value_name].to_numpy()
     default_q = meta["q"]
-    ds, variant = "skab", f"detrend{meta['detrend']}" if meta.get("detrend") else "raw"
+    ds, variant = "skab", SKAB_VARIANT
 
 cfg = tuned(ds, det, variant)
 use_tuned = st.sidebar.toggle(
