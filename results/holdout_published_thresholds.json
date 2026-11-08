@@ -1,0 +1,14 @@
+{
+  "ARTime": 0.317486,
+  "numenta": 0.354999402621,
+  "contextOSE": 0.7069507730864749,
+  "htmjava": 0.5810369828784782,
+  "knncad": 1.0,
+  "relativeEntropy": 0.5,
+  "earthgeckoSkyline": 0.5,
+  "randomCutForest": 0.3666571222575117,
+  "twitterADVec": 0.5,
+  "windowedGaussian": 0.999884548271,
+  "skyline": 0.571428571429,
+  "random": 0.900286263186194
+}

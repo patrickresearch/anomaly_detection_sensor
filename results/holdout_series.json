@@ -1,0 +1,137 @@
+{
+  "ec2_cpu_utilization_53ea38": [
+    "realAWSCloudwatch/ec2_cpu_utilization_53ea38.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "ec2_cpu_utilization_5f5533": [
+    "realAWSCloudwatch/ec2_cpu_utilization_5f5533.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "ec2_cpu_utilization_ac20cd": [
+    "realAWSCloudwatch/ec2_cpu_utilization_ac20cd.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "ec2_cpu_utilization_fe7f93": [
+    "realAWSCloudwatch/ec2_cpu_utilization_fe7f93.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "ec2_disk_write_bytes_1ef3de": [
+    "realAWSCloudwatch/ec2_disk_write_bytes_1ef3de.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "ec2_disk_write_bytes_c0d644": [
+    "realAWSCloudwatch/ec2_disk_write_bytes_c0d644.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "ec2_network_in_5abac7": [
+    "realAWSCloudwatch/ec2_network_in_5abac7.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "elb_request_count_8c0756": [
+    "realAWSCloudwatch/elb_request_count_8c0756.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "grok_asg_anomaly": [
+    "realAWSCloudwatch/grok_asg_anomaly.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "rds_cpu_utilization_e47b3b": [
+    "realAWSCloudwatch/rds_cpu_utilization_e47b3b.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "exchange-2_cpm_results": [
+    "realAdExchange/exchange-2_cpm_results.csv",
+    "0 days 12:00:00",
+    false
+  ],
+  "exchange-3_cpc_results": [
+    "realAdExchange/exchange-3_cpc_results.csv",
+    "0 days 12:00:00",
+    false
+  ],
+  "exchange-3_cpm_results": [
+    "realAdExchange/exchange-3_cpm_results.csv",
+    "0 days 12:00:00",
+    false
+  ],
+  "exchange-4_cpc_results": [
+    "realAdExchange/exchange-4_cpc_results.csv",
+    "0 days 12:00:00",
+    false
+  ],
+  "exchange-4_cpm_results": [
+    "realAdExchange/exchange-4_cpm_results.csv",
+    "0 days 12:00:00",
+    false
+  ],
+  "rogue_agent_key_hold": [
+    "realKnownCause/rogue_agent_key_hold.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "TravelTime_387": [
+    "realTraffic/TravelTime_387.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "occupancy_6005": [
+    "realTraffic/occupancy_6005.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "speed_6005": [
+    "realTraffic/speed_6005.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "speed_t4013": [
+    "realTraffic/speed_t4013.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "Twitter_volume_AMZN": [
+    "realTweets/Twitter_volume_AMZN.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "Twitter_volume_CVS": [
+    "realTweets/Twitter_volume_CVS.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "Twitter_volume_FB": [
+    "realTweets/Twitter_volume_FB.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "Twitter_volume_GOOG": [
+    "realTweets/Twitter_volume_GOOG.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "Twitter_volume_IBM": [
+    "realTweets/Twitter_volume_IBM.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "Twitter_volume_KO": [
+    "realTweets/Twitter_volume_KO.csv",
+    "0 days 02:00:00",
+    false
+  ],
+  "Twitter_volume_PFE": [
+    "realTweets/Twitter_volume_PFE.csv",
+    "0 days 02:00:00",
+    false
+  ]
+}

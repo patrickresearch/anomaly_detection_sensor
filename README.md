@@ -54,6 +54,32 @@ leave-one-out estimate. A stage is adopted only if it beats the previous one wit
 on NAB the context length stage does (ensemble of `matrix_profile_raw` and `zscore` at 2× context), on SKAB none of the
 extra stages helps. The adopted stages are set in [src/config.py](src/config.py).
 
+## Holdout and external benchmarks
+
+**Fresh NAB series** ([src/holdout.py](src/holdout.py)). All 27 remaining real NAB series with a labeled window in the test part,
+run with the configuration frozen on the nine tuning series. The published NAB detectors are scored on the same test segments,
+with thresholds also chosen on the tuning series only. The NAB score re-implements `nab/sweeper.py` and reproduces HTM's
+published 70.10 (standard) on the full corpus.
+
+| Pooled event F1 | tuning (9) | holdout (27) |
+|---|---|---|
+| contextOSE (NAB) | 0.82 | **0.63** |
+| relativeEntropy (NAB) | 0.80 | 0.56 |
+| HTM (NAB) | 0.77 | 0.47 |
+| `autoencoder` | 0.71 | 0.39 |
+| `matrix_profile_raw` | 0.68 | 0.39 |
+| `ensemble` | 0.76 | 0.32 |
+| chance | ~0.2 | ~0.15 |
+
+The tuned ensemble does not transfer; the in-sample optimization overfit the nine series. Our detectors find a similar share of
+events as the NAB detectors but raise two to three times as many false alarms, because they are fit once and do not adapt to
+level drift.
+
+**SKAB leaderboard** ([src/skab_protocol.py](src/skab_protocol.py)). The published leaderboard predictions are re-scored with an
+independent implementation of the SKAB metrics, which reproduces the leaderboard exactly. On the changepoint leaderboard the tuned
+`autoencoder` reaches a NAB score of 46.0, ahead of all published models (best: MSCRED 31.9). On the point-wise outlier leaderboard
+it reaches only 0.47 F1 (Conv-AE 0.78), but an always-on alarm already scores 0.70 there, so that ranking says little.
+
 ## App
 
 [app/streamlit_app.py](app/streamlit_app.py) lets you move the threshold and see alarms, false alarms, delay and, for SKAB, the
@@ -67,6 +93,8 @@ uv run python -m src.run           # NAB
 uv run python -m src.run_skab      # SKAB
 uv run python -m src.animate       # docs/streaming.gif
 uv run python -m src.optimize      # leave-one-out tuning
+uv run python -m src.holdout       # fresh NAB series and published NAB detectors
+uv run python -m src.skab_protocol # SKAB leaderboard protocol
 uv run pytest
 uv run jupyter nbconvert --to html --execute notebooks/anomaly_comparison.ipynb --output-dir docs --output index.html
 uv run streamlit run app/streamlit_app.py

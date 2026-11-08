@@ -50,7 +50,10 @@ def fetch(path: str) -> Path:
 
 
 def load(name: str) -> Series:
-    path, context, weekly = SERIES[name]
+    return load_path(name, *SERIES[name])
+
+
+def load_path(name: str, path: str, context: str, weekly: bool) -> Series:
     df = pd.read_csv(fetch(f"data/{path}"), parse_dates=["timestamp"])
     windows = json.loads(fetch("labels/combined_windows.json").read_text())[path]
     points = json.loads(fetch("labels/combined_labels.json").read_text())[path]

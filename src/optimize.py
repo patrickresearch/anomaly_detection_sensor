@@ -102,8 +102,15 @@ def skab_cases(ws=SKAB_W, trains=("local", "free")) -> list[Case]:
         for det in MV_DETECTORS:
             for w in ws:
                 for train in trains:
-                    model = shared[(det, w)] if train == "free" else build(det, w, 0, SKAB_DETREND).fit(e.X[:FIT])
+                    if train == "dual":
+                        continue
+                    detrend = 0 if train == "raw" else SKAB_DETREND
+                    model = shared[(det, w)] if train == "free" else build(det, w, 0, detrend).fit(e.X[:FIT])
                     case.scores[(det, f"{train}-w{w}")] = model.score(e.X)[0]
+                if "dual" in trains:
+                    fast, slow = case.scores[(det, f"local-w{w}")], case.scores[(det, f"raw-w{w}")]
+                    case.scores[(det, f"dual-w{w}")] = np.mean(
+                        [calibrate(fast, fast[case.val]), calibrate(slow, slow[case.val])], axis=0)
         cases.append(case)
         print(f"  scored {name}", flush=True)
     return cases
@@ -201,6 +208,12 @@ STAGES = {
         "B_ensemble_subsets": lambda d, v: v.split("|")[0] == "w1",
         "C_context_length": lambda d, v: True,
     },
+    "skab_dual": {
+        "A_previous": lambda d, v: v == "local-w20" or v == "local-w20|autoencoder+pca+zscore",
+        "B_ensemble_subsets": lambda d, v: v.split("|")[0] == "local-w20",
+        "E_no_detrend": lambda d, v: v.split("|")[0] in ("local-w20", "raw-w20"),
+        "F_dual_timescale": lambda d, v: True,
+    },
     "skab": {
         "A_previous": lambda d, v: v == "local-w20" or v == "local-w20|autoencoder+pca+zscore",
         "B_ensemble_subsets": lambda d, v: v.split("|")[0] == "local-w20",
@@ -212,13 +225,14 @@ STAGES = {
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--datasets", nargs="+", default=["nab", "skab"], choices=["nab", "skab"])
+    parser.add_argument("--datasets", nargs="+", default=["nab", "skab"], choices=["nab", "skab", "skab_dual"])
     parser.add_argument("--n-null", type=int, default=1000)
     args = parser.parse_args()
 
     for ds in args.datasets:
         t0 = time.perf_counter()
-        cases = nab_cases() if ds == "nab" else skab_cases()
+        cases = {"nab": nab_cases, "skab": skab_cases,
+                 "skab_dual": lambda: skab_cases(ws=(20,), trains=("local", "raw", "dual"))}[ds]()
         add_ensembles(cases)
         g = grid(cases)
         g.to_csv(RESULTS / f"opt_{ds}_grid.csv", index=False)
