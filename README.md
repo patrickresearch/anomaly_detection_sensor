@@ -1,6 +1,6 @@
 # anomaly_detection_sensor
 
-Comparing anomaly detectors on labeled sensor time series: five univariate detectors on nine series from the
+Comparing anomaly detectors on labeled sensor time series: six univariate detectors on nine series from the
 [Numenta Anomaly Benchmark](https://github.com/numenta/NAB) and three multivariate detectors with per-sensor explanations on
 [SKAB](https://github.com/waico/SKAB). Evaluated at event level against a chance baseline, with a streaming variant and an
 interactive threshold app.
@@ -18,6 +18,7 @@ interactive threshold app.
 | `matrix_profile` | z-normalized distance to nearest normal training subsequence (stumpy AB-join) |
 | `matrix_profile_raw` | same without z-normalization, sensitive to level and amplitude shifts |
 | `autoencoder` | reconstruction error of a 1D-conv autoencoder trained on normal windows |
+| `relative_entropy` | divergence of the current window's value histogram from recurring past ones (Wang et al. 2011) |
 | `ensemble` | mean of validation-calibrated `matrix_profile_raw` and `zscore` scores at twice the context length |
 
 - chronological split 40/20/40, labeled windows removed from training
@@ -75,6 +76,16 @@ The tuned ensemble does not transfer; the in-sample optimization overfit the nin
 events as the NAB detectors but raise two to three times as many false alarms, because they are fit once and do not adapt to
 level drift.
 
+**Improving generalization** ([src/cv.py](src/cv.py)). With the holdout used once, all 36 NAB series are evaluated by
+cross-validation over the five NAB categories, the detector choice included. Of eight ideas (refractory period, rolling robust
+threshold, log transform, context length from autocorrelation, robust selection rules, a relative-entropy detector, diverse
+ensembles) only the **refractory period** gives a secure gain: pooled F1 0.431 → 0.466, false alarms 103 → 75. Its settings are
+frozen in `results/final_config.json` and used by the app.
+
+**Final check on the UCR Anomaly Archive** ([src/ucr.py](src/ucr.py)). The frozen settings applied unchanged to all 250 UCR
+series: `matrix_profile_raw` puts its highest test score within 100 points of the anomaly in 41 % of the series, the autoencoder
+in 39 % (chance 2.4 %, classic z-normalized discord search 46 %). The ranking transfers, the NAB-calibrated alarm threshold does not.
+
 **SKAB leaderboard** ([src/skab_protocol.py](src/skab_protocol.py)). The published leaderboard predictions are re-scored with an
 independent implementation of the SKAB metrics, which reproduces the leaderboard exactly. On the changepoint leaderboard the tuned
 `autoencoder` reaches a NAB score of 46.0, ahead of all published models (best: MSCRED 31.9). On the point-wise outlier leaderboard
@@ -95,6 +106,8 @@ uv run python -m src.animate       # docs/streaming.gif
 uv run python -m src.optimize      # leave-one-out tuning
 uv run python -m src.holdout       # fresh NAB series and published NAB detectors
 uv run python -m src.skab_protocol # SKAB leaderboard protocol
+uv run python -m src.cv            # category-wise cross-validation on 36 NAB series
+uv run python -m src.ucr           # final check on the UCR Anomaly Archive (unzip into data/raw/ucr)
 uv run pytest
 uv run jupyter nbconvert --to html --execute notebooks/anomaly_comparison.ipynb --output-dir docs --output index.html
 uv run streamlit run app/streamlit_app.py

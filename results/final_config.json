@@ -1,0 +1,49 @@
+{
+  "stage": "B_quantile_refractory",
+  "selected_on": "all 36 NAB series, mean event F1",
+  "overall": "matrix_profile_raw",
+  "detectors": {
+    "matrix_profile_raw": {
+      "q": 0.999,
+      "span": 0.0,
+      "k": 0.25,
+      "refractory": 2,
+      "nab_mean_f1": 0.6141
+    },
+    "autoencoder": {
+      "q": 0.995,
+      "span": 0.0,
+      "k": 0.25,
+      "refractory": 2,
+      "nab_mean_f1": 0.5909
+    },
+    "iforest": {
+      "q": 0.995,
+      "span": 0.0,
+      "k": 0.1,
+      "refractory": 5,
+      "nab_mean_f1": 0.5383
+    },
+    "relative_entropy": {
+      "q": 0.999,
+      "span": 0.25,
+      "k": 0.0,
+      "refractory": 5,
+      "nab_mean_f1": 0.5294
+    },
+    "zscore": {
+      "q": 0.98,
+      "span": 0.25,
+      "k": 0.25,
+      "refractory": 10,
+      "nab_mean_f1": 0.4959
+    },
+    "matrix_profile": {
+      "q": 0.999,
+      "span": 0.0,
+      "k": 0.25,
+      "refractory": 2,
+      "note": "reference, not tuned; uses the matrix_profile_raw setting"
+    }
+  }
+}

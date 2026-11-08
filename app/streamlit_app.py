@@ -12,12 +12,14 @@ sys.path.insert(0, str(ROOT))
 from src.config import SKAB_VARIANT, nab_variant  # noqa: E402
 from src.metrics import evaluate  # noqa: E402
 from src.plots import threshold_view  # noqa: E402
+from src.adaptive import refractory  # noqa: E402
 from src.postprocess import debounce, smooth  # noqa: E402
 
 RESULTS = ROOT / "results"
 QS = [0.9, 0.95, 0.97, 0.98, 0.99, 0.995, 0.998, 0.999, 0.9995, 1.0]
 SPANS = [0.0, 0.1, 0.25, 0.5, 1.0]
 DEBOUNCE = [0.0, 0.1, 0.25, 0.5]
+REFRACTORY = [0, 1, 2, 5, 10]
 SKAB_FIT, SKAB_VAL = 300, 400
 
 st.set_page_config(page_title="Sensor anomaly detection", layout="wide")
@@ -35,6 +37,10 @@ def skab():
 
 @st.cache_data
 def tuned(ds: str, detector: str, variant: str) -> dict | None:
+    final = RESULTS / "final_config.json"
+    if ds == "nab" and final.exists():
+        cfg = json.loads(final.read_text())["detectors"].get(detector)
+        return {key: cfg[key] for key in ("q", "span", "k", "refractory")} if cfg and "note" not in cfg else None
     path = RESULTS / f"opt_{ds}_grid.csv"
     if not path.exists():
         return None
@@ -43,7 +49,7 @@ def tuned(ds: str, detector: str, variant: str) -> dict | None:
     if g.empty:
         return None
     best = g.groupby(["q", "span", "k"])["f1"].mean().idxmax()
-    return dict(zip(["q", "span", "k"], best))
+    return {**dict(zip(["q", "span", "k"], best)), "refractory": 0}
 
 
 def stamps(pairs):
@@ -99,10 +105,10 @@ else:
 cfg = tuned(ds, det, variant)
 use_tuned = st.sidebar.toggle(
     "Tuned post-processing", value=cfg is not None, disabled=cfg is None,
-    help="Threshold, smoothing and minimum alarm duration with the best mean event F1 over all series. "
-         "The notebook reports a leave-one-out estimate of this gain.",
+    help="NAB: threshold, minimum alarm duration and refractory period chosen by category-wise cross-validation "
+         "on 36 NAB series. SKAB: best mean event F1 over all experiments (leave-one-out estimate in the notebook).",
 )
-base = cfg if use_tuned else {"q": default_q, "span": 0.0, "k": 0.0}
+base = cfg if use_tuned else {"q": default_q, "span": 0.0, "k": 0.0, "refractory": 0}
 key = f"{use_tuned}-{ds}-{det}-{name}"
 q = st.sidebar.select_slider(
     "Threshold (quantile of normal validation scores)", options=QS, value=base["q"], disabled=use_tuned,
@@ -115,9 +121,14 @@ k = st.sidebar.select_slider(
     "Minimum alarm duration (share of window)", options=DEBOUNCE, value=base["k"], disabled=use_tuned,
     help="An alarm is raised only after this many consecutive points above the threshold.", key=f"k-{key}",
 )
+r = st.sidebar.select_slider(
+    "Refractory period (windows)", options=REFRACTORY, value=base["refractory"], disabled=use_tuned,
+    help="Alarms closer than this to the previous one are merged into a single alert at its first point.",
+    key=f"r-{key}",
+)
 score = smooth(df["score"].to_numpy(), int(round(span * gap)))
 thr = float(np.nanquantile(score[val], q))
-alarms = debounce(np.nan_to_num(score, nan=-np.inf) > thr, int(round(k * gap)))
+alarms = refractory(debounce(np.nan_to_num(score, nan=-np.inf) > thr, int(round(k * gap))), int(r * gap))
 st.sidebar.markdown(f"Threshold in score units: **{thr:.4g}**")
 
 res = evaluate(t[test], alarms[test], windows, points, gap=gap, grace=grace, n_null=300)

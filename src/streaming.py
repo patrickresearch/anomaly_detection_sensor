@@ -1,3 +1,4 @@
+import copy
 from collections import deque
 
 import numpy as np
@@ -8,6 +9,9 @@ class Stream:
     def __init__(self, detector, threshold: float):
         self.alpha = getattr(detector, "alpha", None)
         self.detector = detector.inner if self.alpha else detector
+        self.stateful = hasattr(self.detector, "step")
+        if self.stateful:
+            self.detector = copy.deepcopy(self.detector)
         self.threshold = threshold
         self.buffer = deque(maxlen=detector.w + 1)
         self.base = None
@@ -19,6 +23,9 @@ class Stream:
             self.base = x if self.base is None else (1 - self.alpha) * self.base + self.alpha * x
             x = r
         self.buffer.append(x)
+        if self.stateful:
+            score = self.detector.step(np.asarray(self.buffer))
+            return score, None, bool(score > self.threshold)
         if len(self.buffer) < self.buffer.maxlen:
             return np.nan, None, False
         out = self.detector.score(np.asarray(self.buffer))

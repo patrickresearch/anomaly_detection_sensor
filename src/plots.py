@@ -9,6 +9,7 @@ COLORS = {
     "matrix_profile": "#1baf7a",
     "matrix_profile_raw": "#eda100",
     "autoencoder": "#e87ba4",
+    "relative_entropy": "#6250d6",
     "ensemble": "#008300",
 }
 SYMBOLS = {
@@ -17,6 +18,7 @@ SYMBOLS = {
     "matrix_profile": "square",
     "matrix_profile_raw": "pentagon",
     "autoencoder": "triangle-up",
+    "relative_entropy": "hexagon",
     "ensemble": "star",
 }
 LINE, BAND, INK = "#52514e", "rgba(82,81,78,0.15)", "#0b0b0b"

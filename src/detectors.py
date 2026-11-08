@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
 import stumpy
+from scipy import stats
 import torch
 from numpy.lib.stride_tricks import sliding_window_view
 from sklearn.ensemble import IsolationForest
@@ -140,10 +141,54 @@ class Autoencoder(Detector):
         return align(torch.cat(err).numpy(), len(x))
 
 
+class RelativeEntropy(Detector):
+    bins = 5
+    c_th = 1
+
+    def fit(self, x):
+        x = x[np.isfinite(x)]
+        lo, hi = x.min(), x.max()
+        self.edges = np.unique(np.r_[lo, np.linspace(lo, hi, self.bins + 1)[1:-1], hi])
+        self.P, self.c = np.empty((0, len(self.edges) + 1)), np.empty(0)
+        self.T = stats.chi2.isf(0.01, len(self.edges))
+        self._run(x)
+        return self
+
+    def _hist(self, b: np.ndarray) -> np.ndarray:
+        h = np.bincount(b, minlength=len(self.edges) + 1) + 0.5
+        return h / h.sum()
+
+    def step(self, window: np.ndarray) -> float:
+        if len(window) < self.w or not np.isfinite(window).all():
+            return np.nan
+        p = self._hist(np.digitize(window[-self.w:], self.edges))
+        stat = 2 * self.w * (p * np.log(p / self.P)).sum(1) if len(self.P) else np.empty(0)
+        common = self.c > self.c_th
+        out = stat[common].min() if common.any() else self.T * 2
+        if len(stat) and stat.min() < self.T:
+            self.c[stat.argmin()] += 1
+        else:
+            self.P, self.c = np.vstack([self.P, p]), np.append(self.c, 1)
+        return float(out)
+
+    def _run(self, x: np.ndarray) -> np.ndarray:
+        out = np.full(len(x), np.nan)
+        for t in range(self.w - 1, len(x)):
+            out[t] = self.step(x[t - self.w + 1:t + 1])
+        return out
+
+    def score(self, x):
+        P, c = self.P.copy(), self.c.copy()
+        out = self._run(np.asarray(x, dtype=float))
+        self.P, self.c = P, c
+        return out
+
+
 DETECTORS = {
     "zscore": RollingZScore,
     "iforest": IForest,
     "matrix_profile": MatrixProfile,
     "matrix_profile_raw": MatrixProfileRaw,
     "autoencoder": Autoencoder,
+    "relative_entropy": RelativeEntropy,
 }

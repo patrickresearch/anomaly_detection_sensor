@@ -7,3 +7,6 @@ data/
 tests/
 .pytest_cache/
 
+CLAUDE.md
+ROADMAP.md
+.claude/
